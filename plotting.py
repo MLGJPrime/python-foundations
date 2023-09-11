@@ -5,3 +5,4 @@ x = np.array([0, 6])
 y = np.array([3, 10])
 
 plt.plot(x, y)
+plt.show()
