@@ -42,7 +42,7 @@ zgled_matrike = [[i**2 + 3*j for i in range(8)] for j in range(8)]
 # 4. podnaloga
 # Sestavite funkcijo `sestej(mat1, mat2)`, ki sestavi in vrne novo matriko,
 # ki je vsota matrik `mat1` in `mat2`. Zgled:
-# 
+#
 #     >>> sestej([[1, 0], [0, 1]], [[0, 2], [0, 0]])
 #     [[1, 2], [0, 1]]
 # =============================================================================
@@ -51,7 +51,7 @@ zgled_matrike = [[i**2 + 3*j for i in range(8)] for j in range(8)]
 # 5. podnaloga
 # Sestavite funkcijo `zmnozi(mat1, mat2)`, ki sestavi in vrne novo matriko
 # in sicer produkt matrik `mat1` in `mat2`. Zgled:
-# 
+#
 #     >>> zmnozi([[1, 2], [3, 4]], [[0, 1], [0, 0]])
 #     [[0, 1], [0, 3]]
 # =============================================================================
@@ -69,6 +69,12 @@ def uporabi(mat, v):
     return [sum([mat[i][j]*v[j] for j in range(len(mat[0]))]) for i in range(len(mat))]
 
 
+def sestej(mat1, mat2):
+    return [[mat1[i][j]+mat2[i][j] for j in range(len(mat1[0]))]for i in range(len(mat1))]
+
+
+def zmnozi(mat1, mat2):
+    return [[sum([mat1[i][j]*mat2[j][k] for j in range(len(mat1[0]))]) for k in range(len(mat2[0]))] for i in range(len(mat1))]
 
 
 
@@ -347,7 +353,7 @@ class Check:
                 print(line, file=f)
         old_feedback = Check.current_part["feedback"][:]
         yield
-        new_feedback = Check.current_part["feedback"][len(old_feedback) :]
+        new_feedback = Check.current_part["feedback"][len(old_feedback):]
         Check.current_part["feedback"] = old_feedback
         if new_feedback:
             new_feedback = ["\n    ".join(error.split("\n")) for error in new_feedback]
