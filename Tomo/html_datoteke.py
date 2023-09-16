@@ -141,7 +141,6 @@
 # Opomba: Značk `<li>` ne zapirajte.
 # =============================================================================
 
-
 def html2txt(vhodna, izhodna):
     znacka = False  # Stikalo, ki pove, če smo znotraj HTML značke.
     with open(vhodna, encoding='utf-8') as html:
@@ -158,9 +157,36 @@ def html2txt(vhodna, izhodna):
                 # koncu izpisal znak '\n'.
                 print(txt_vrstica, file=txt, end='')
 
+def tabela(vhodna, izhodna):
+    html_table = []
+    with open(vhodna, encoding='utf-8') as txt:
+        with open(izhodna, 'w', encoding='utf-8') as html:
+            print("<table>", file=html)
+            for line in txt:
+                html_table = line.strip().split(',')
+                print("  <tr>", file=html)
+                for element in html_table:
+                    print("    <td>" + element + "</td>", file=html)
+                print("  </tr>", file=html)
+            print("</table>", file=html, end='')
 
-
-
+def seznami(vhodna, izhodna):
+    html_list = False
+    with open(vhodna, encoding='utf-8') as txt:
+        with open(izhodna, 'w', encoding='utf-8') as html:
+            for line in txt:
+                if line[0] == '*':
+                    if not html_list:
+                        html_list = True
+                        print("<ul>", file=html)
+                    print("  <li>" + line[1:].strip() + "</li>", file=html)
+                else:
+                    if html_list:
+                        html_list = False
+                        print("</ul>",  file=html)
+                    print(line, file=html, end='')
+            if html_list:
+                print("</ul>", file=html)
 
 
 
