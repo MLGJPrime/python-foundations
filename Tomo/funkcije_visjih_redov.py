@@ -1,75 +1,105 @@
 # =============================================================================
-# Matrike
+# Funkcije višjih redov
 #
-# Načeloma lahko za predstavitev matrik v Pythonu uporabimo modul
-# [array](http://docs.python.org/py3k/library/array.html),
-# a mi jih bomo predstavili kar s seznami seznamov.
-# [Hilbertovo matriko](http://sl.wikipedia.org/wiki/Hilbertova_matrika)
-# bi tako zapisali s seznamom `[[1, 1/2], [1/2, 1/3]]`.
-#
-# Predpostavite lahko, da imajo vse matrike vsaj en element in
-# da imajo vsi podseznami enako dolžino, ne smete pa predpostaviti,
-# da so vse matrike kvadratne.
-# =====================================================================@025517=
+# Spodaj je primer funkcije višjega reda `eksponentna(a)`, ki kot argument
+# dobi število $a$ in vrne funkcijo $x \mapsto a^x$. Zgled uporabe:
+# 
+#     >>> f = eksponentna(2)
+#     >>> f(5)
+#     32
+#     >>> f(0.5)
+#     1.4142135623730951
+# =====================================================================@005782=
 # 1. podnaloga
-# Sestavite funkcijo `identiteta(n)`, ki vrne identično matriko
-# dimenzij $n \times n$. Zgled:
-#
-#     >>> identiteta(3)
-#     [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+# Sestavite funkcijo `linearna(a, b)`, ki kot argumenta dobi števili $a$
+# in $b$ ter vrne funkcijo $x \mapsto a \cdot x + b$. Zgled:
+# 
+#     >>> f = linearna(3, 2)
+#     >>> f(0.5)
+#     3.5
 # =============================================================================
-# Matriko lahko sestavimo z gnezdenimi izpeljanimi seznami.
+import math
 
-def identiteta(n):
-    return [[1 if i == j else 0 for i in range(n)] for j in range(n)]
+def eksponentna(a):
+    return (lambda x: a ** x)
 
-# =====================================================================@025518=
+def linearna(a, b):
+    return (lambda x: a * x + b)
+
+# =====================================================================@005784=
 # 2. podnaloga
-# Sestavite funkcijo `transponiraj(mat)`, ki sestavi in vrne novo matriko
-# in sicer transponirko dane matrike `mat`. Zgled:
-#
-#     >>> transponiraj([[1, 2], [3, 4]])
-#     [[1, 3], [2, 4]]
+# Sestavite funkcijo `kompozitum(f, g)`, ki kot argumenta dobi funkciji
+# `f` in `g`, ter vrne njun kompozitum.
+# Zgled:
+# 
+#     >>> import math
+#     >>> f = kompozitum(abs, math.sin)
+#     >>> f(3*math.pi/2)
+#     1.0
 # =============================================================================
 
-def transponiraj(mat):
-    return [[mat[i][j] for i in range(len(mat))]for j in range(len(mat[0]))]
+def kompozitum(f, g):
+    return (lambda x: f(g(x)))
 
-# =====================================================================@025519=
+# =====================================================================@005785=
 # 3. podnaloga
-# Sestavite funkcijo `uporabi(mat, v)`, ki matriko `mat` uporabi na
-# vektorju `v`. Vektor je predstavljen kot seznam števil. Zgled:
-#
-#     >>> uporabi([[1, 1/2], [1/2, 1/3]], [1, 1])
-#     [1.5, 0.8333333333333333]
+# Sestavite funkcijo `odvod(f, epsilon=10e-5)`, ki sprejme funkcijo `f`
+# in vrne njen odvod (ki je spet funkcija). Odvod v točki `x` ocenimo z izrazom
+# $f'(x) \approx (f(x + \epsilon/2) - f(x - \epsilon/2)) / \epsilon$.
+# Zgled:
+# 
+#     >>> f = odvod((lambda x: x * x + 1))
+#     >>> f(1.0)
+#     2.000000000002
 # =============================================================================
 
-def uporabi(mat, v):
-    return [sum([mat[i][j]*v[j] for j in range(len(mat[0]))]) for i in range(len(mat))]
+def odvod(f, epsilon=10e-5):
+    return (lambda x: (f(x + epsilon/2) - f(x - epsilon/2)) / epsilon)
 
-# =====================================================================@025520=
+# =====================================================================@005786=
 # 4. podnaloga
-# Sestavite funkcijo `sestej(mat1, mat2)`, ki sestavi in vrne novo matriko,
-# ki je vsota matrik `mat1` in `mat2`. Zgled:
-#
-#     >>> sestej([[1, 0], [0, 1]], [[0, 2], [0, 0]])
-#     [[1, 2], [0, 1]]
+# Sestavite funkcijo `uporabi_nkrat(f, x, n)`, ki kot argumente dobi
+# funkcijo `f`, število `x` in naravno število `n` ter vrne število, ki
+# ga dobimo, če na `x` funkcijo `f` uporabimo $n$-krat. Zgled:
+# 
+#     >>> collatz = lambda x: x // 2 if x % 2 == 0 else 3*x + 1
+#     >>> uporabi_nkrat(collatz, 13, 7)
+#     4
 # =============================================================================
 
-def sestej(mat1, mat2):
-    return [[mat1[i][j]+mat2[i][j] for j in range(len(mat1[0]))]for i in range(len(mat1))]
 
-# =====================================================================@025521=
+def uporabi_nkrat(f, x, n):
+    for i in range(n):
+        x = f(x)
+    return x
+
+# =====================================================================@005787=
 # 5. podnaloga
-# Sestavite funkcijo `zmnozi(mat1, mat2)`, ki sestavi in vrne novo matriko
-# in sicer produkt matrik `mat1` in `mat2`. Zgled:
-#
-#     >>> zmnozi([[1, 2], [3, 4]], [[0, 1], [0, 0]])
-#     [[0, 1], [0, 3]]
+# Sestavite funkcijo `uporabi_vse(sez, x)`, ki kot argumenta dobi seznama
+# funkcij `sez` in število `x`. Funkcija naj vsako od funkcij iz `sez` uporabi
+# na `x` in vrne seznam tako dobljenih števil. Zgled:
+# 
+#     >>> f = lambda x: x**2 - 3*x + 4
+#     >>> g = lambda x: x**x
+#     >>> uporabi_vse([math.sin, math.cos, f, g, abs, int], math.pi/2)
+#     [1.0, 6.123233995736766e-17, 1.7550121198876498, 2.032658322210728, 1.5707963267948966, 1]
 # =============================================================================
 
-def zmnozi(mat1, mat2):
-    return [[sum([mat1[i][j]*mat2[j][k] for j in range(len(mat1[0]))]) for k in range(len(mat2[0]))] for i in range(len(mat1))]
+def uporabi_vse(sez, x):
+    return [f(x) for f in sez]
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -348,7 +378,7 @@ class Check:
                 print(line, file=f)
         old_feedback = Check.current_part["feedback"][:]
         yield
-        new_feedback = Check.current_part["feedback"][len(old_feedback):]
+        new_feedback = Check.current_part["feedback"][len(old_feedback) :]
         Check.current_part["feedback"] = old_feedback
         if new_feedback:
             new_feedback = ["\n    ".join(error.split("\n")) for error in new_feedback]
@@ -651,21 +681,20 @@ def _validate_current_file():
     if Check.part():
         Check.current_part[
             "token"
-        ] = "eyJwYXJ0IjoyNTUxNywidXNlciI6NjE5M30:1qgV0c:1Jo3a1tfjQuN_Vo2Jb4NkY6FnrsmtO51Tfq1V07oZU8"
+        ] = "eyJwYXJ0Ijo1NzgyLCJ1c2VyIjo2MTkzfQ:1qiFEu:0MaXfJql-e9qNqphQX2zD1TStAsauarIHmvuANf2baA"
         try:
             test_data = [
-                ('identiteta(1)', [[1]]),
-                ('identiteta(2)', [[1, 0], [0, 1]]),
-                ('identiteta(3)', [[1, 0, 0], [0, 1, 0], [0, 0, 1]]),
-                ('identiteta(4)', [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]),
-                ('identiteta(5)', [[1, 0, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 1, 0], [0, 0, 0, 0, 1]]),
-                ('identiteta(7)', [[1, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1]]),
+                (["f = linearna(3, 2)", "y = f(0.5)"], {'y': 3.5}),
+                (["f = linearna(3, 2)", "y = f(2.5)"], {'y': 9.5}),
+                (["f = linearna(3, 2)", "y = f(-3)"], {'y': -7}),
+                (["f = linearna(-3, 2.5)", "y = f(0.5)"], {'y': 1}),
+                (["f = linearna(0, 7.3)", "y = f(1)"], {'y': 7.3}),
+                (["f = linearna(7, -9)", "y = f(2)"], {'y': 5}),
+                (["f = linearna(1.5, -5)", "y = f(-9)"], {'y': -18.5}),
             ]
             for td in test_data:
-                if not Check.equal(*td):
+                if not Check.run(*td):
                     break
-            Check.secret(identiteta(25))
-            Check.secret(identiteta(100))
         except:
             Check.error(
                 "Testi sprožijo izjemo\n  {0}",
@@ -675,23 +704,24 @@ def _validate_current_file():
     if Check.part():
         Check.current_part[
             "token"
-        ] = "eyJwYXJ0IjoyNTUxOCwidXNlciI6NjE5M30:1qgV0c:hg5xjT7eVBJcWBtCHUgox05eSj9YrSr8eoUK4c1T6rQ"
+        ] = "eyJwYXJ0Ijo1Nzg0LCJ1c2VyIjo2MTkzfQ:1qiFEu:CX-LCc9eWSFdiOtW5Kl73HseWIT7tHT2Keedoxy18Kk"
         try:
+            import math
             test_data = [
-                ('transponiraj([[1, 3], [2, 4]])', [[1, 2], [3, 4]]),
-                ('transponiraj([[1, 2, 3], [4, 5, 6], [7, 8, 9]])', [[1, 4, 7], [2, 5, 8], [3, 6, 9]]),
-                ('transponiraj([[1], [5]])', [[1, 5]]),
-                ('transponiraj([[1, 5]])', [[1], [5]]),
-                ('transponiraj([[1, 3, 6], [2, 4, 8]])', [[1, 2], [3, 4], [6, 8]]),
-                ('transponiraj([[1, 2], [3, 4], [6, 8]])', [[1, 3, 6], [2, 4, 8]]),
-                ('transponiraj([[1, 2], [3, 4], [6, 8], [9, 10], [11, 12]])', [[1, 3, 6, 9, 11], [2, 4, 8, 10, 12]]),
-                ('transponiraj([[1, 3, 6, 9, 11], [2, 4, 8, 10, 12]])', [[1, 2], [3, 4], [6, 8], [9, 10], [11, 12]]),
+                (["f = lambda x: x**2", "g = lambda x: x**2 + 3*x + 4",
+                  "h = kompozitum(f, g)", "x = h(2)"], {'x': 196}),
+                (["f = lambda x: x**2", "g = lambda x: x**2 + 3*x + 4",
+                  "h = kompozitum(f, g)", "x = h(-1)"], {'x': 4}),
+                (["f = lambda x: x**2", "g = lambda x: x**2 + 3*x + 4",
+                  "h = kompozitum(g, f)", "x = h(2)"], {'x': 32}),
+                (["f = lambda x: x**2", "g = lambda x: x**2 + 3*x + 4",
+                  "h = kompozitum(g, f)", "x = h(-1)"], {'x': 8}),
+                (["h = kompozitum(math.sin, math.log)", "x = h(3)"], {'x': 0.8905770416677471}),
+                (["h = kompozitum(math.sin, math.log)", "x = h(2)"], {'x': 0.6389612763136348}),    
             ]
             for td in test_data:
-                if not Check.equal(*td):
+                if not Check.run(*td):
                     break
-            Check.secret(identiteta(24))
-            Check.secret([[i*10 + j + 1 for j in range(10)] for i in range(10)])
         except:
             Check.error(
                 "Testi sprožijo izjemo\n  {0}",
@@ -701,22 +731,14 @@ def _validate_current_file():
     if Check.part():
         Check.current_part[
             "token"
-        ] = "eyJwYXJ0IjoyNTUxOSwidXNlciI6NjE5M30:1qgV0c:IeGgdjJZV7kInm8Oq0sLAGnSnbM1puqJLnByb4xagaU"
+        ] = "eyJwYXJ0Ijo1Nzg1LCJ1c2VyIjo2MTkzfQ:1qiFEu:65U8P_sVhEn3i6RtS4lr7vuYoEvW8XDM67KzAZJ3oRg"
         try:
-            test_data = [
-                ('uporabi([[1, 3], [2, 4]], [5, 6])', [23, 34]),
-                ('uporabi([[1, 1/2], [1/2, 1/3]], [1, 1])', [1.5, 5/6]),
-                ('uporabi([[1], [5]], [5])', [5, 25]),
-                ('uporabi([[1, 3, 6], [2, 4, 8]], [0, 1, 0])', [3, 4]),
-                ('uporabi([[5]], [0.2])', [1]),
-                ('uporabi([[5, 4]], [0.2, 0.3])', [2.2]),
-                ('uporabi([[-1, 3], [2, 4], [0, -7], [9, 1]], [-5, 6])', [23, 14, -42, -39]),
-                ('uporabi([[1, 0, 0], [2, -4, 0], [-1, 6, 4]], [5, -6, 3])', [5, 34, -29]),   
-            ]
-            for td in test_data:
-                if not Check.equal(*td):
-                    break
-            Check.secret(uporabi([[i**2 + 3*j for i in range(8)] for j in range(8)], [16 - i for i in range(8)]))
+            import math
+            
+            Check.equal("odvod((lambda x: x))(1.0)", 1.0)
+            Check.equal("odvod((lambda x: x * x))(0.0)", 0.0)
+            Check.equal("odvod((lambda x: x * x))(1.0)", 2.0)
+            Check.equal("odvod((lambda x: x * x))(3.0)", 6.0)
         except:
             Check.error(
                 "Testi sprožijo izjemo\n  {0}",
@@ -726,22 +748,21 @@ def _validate_current_file():
     if Check.part():
         Check.current_part[
             "token"
-        ] = "eyJwYXJ0IjoyNTUyMCwidXNlciI6NjE5M30:1qgV0c:Js-THUbOakMyuKFY_7jdjHKpea5D7gp87cf3aps1r8o"
+        ] = "eyJwYXJ0Ijo1Nzg2LCJ1c2VyIjo2MTkzfQ:1qiFEu:vrNXnvZXRZze8bHQq-sMhQ-mic36VMdobRiXCifvBGQ"
         try:
             test_data = [
-                ('sestej([[1, 3], [2, 4]], [[5, 6], [7, 8]])', [[6, 9], [9, 12]]),
-                ('sestej([[1], [5]], [[5], [1]])', [[6], [6]]),
-                ('sestej([[1, 5]], [[5, 2]])', [[6, 7]]),
-                ('sestej([[1]], [[7]])', [[8]]),
-                ('sestej([[1, 0], [0, 1]], [[0, 2], [0, 0]])', [[1, 2], [0, 1]]),
-                ('sestej([[1, 2, 3], [4, 5, 6], [7, 8, 9]], [[20, 30, 40], [10, 50, 90], [80, 60, 70]])', [[21, 32, 43], [14, 55, 96], [87, 68, 79]]),
-                ('sestej([[1, 2], [4, 5], [7, 8], [3, 6]], [[20, 30], [10, 50], [80, 60], [70, 40]])', [[21, 32], [14, 55], [87, 68], [73, 46]]),
-                ('sestej([[1, 2, 3, 4], [5, 6, 7, 8]], [[20, 30, 40, 10], [50, 90, 80, 60]])', [[21, 32, 43, 14], [55, 96, 87, 68]]),
+                (["collatz = lambda x: x // 2 if x % 2 == 0 else 3*x + 1",
+                  "x = uporabi_nkrat(collatz, 13, 7)"], {'x': 4}),
+                (["collatz = lambda x: x // 2 if x % 2 == 0 else 3*x + 1",
+                  "x = uporabi_nkrat(collatz, 113, 7)"], {'x': 32}),
+                (["f = lambda x: x**2 - 3*x + 2",
+                  "x = uporabi_nkrat(f, 0.5, 17)"], {'x': 0.2314887767729059}),
+                (["f = lambda x: x**2",
+                  "x = uporabi_nkrat(f, 1.01, 12)"], {'x': 5.0158785658510925e+17}),
             ]
             for td in test_data:
-                if not Check.equal(*td):
+                if not Check.run(*td):
                     break
-            Check.secret(sestej([[i**2 + 3*j for i in range(8)] for j in range(8)], [[i**2 + 3*j for i in range(8)] for j in range(8)]))
         except:
             Check.error(
                 "Testi sprožijo izjemo\n  {0}",
@@ -751,25 +772,29 @@ def _validate_current_file():
     if Check.part():
         Check.current_part[
             "token"
-        ] = "eyJwYXJ0IjoyNTUyMSwidXNlciI6NjE5M30:1qgV0c:sX21shGdKcQ4gJglgPVhtCQJWysuxx_NDRel8KjKPPg"
+        ] = "eyJwYXJ0Ijo1Nzg3LCJ1c2VyIjo2MTkzfQ:1qiFEu:7XR1J-JB81BxKJ6n3hlrnXUthwJVPDIE2j3fR0vebCA"
         try:
             test_data = [
-                ('zmnozi([[1, 3], [2, 4]], [[5, 6], [7, 8]])', [[26, 30], [38, 44]]),
-                ('zmnozi([[1], [5]], [[5, 1, 3]])', [[5, 1, 3], [25, 5, 15]]),
-                ('zmnozi([[1, 3, 6], [2, 4, 8]], [[1, 0], [0, 6], [2, 2]])', [[13, 30], [18, 40]]),
-                ('zmnozi([[1, 2], [3, 4]], [[0, 1], [0, 0]])', [[0, 1], [0, 3]]),
-                ('zmnozi([[1, 0, 2], [3, 5, 4], [-1, 0, -1]], [[-2, 1, 1], [5, 7, 9], [3, -3, 4]])',
-                 [[4, -5, 9], [31, 26, 64], [-1, 2, -5]]),
-                ('zmnozi([[1, 0, 2], [3, 5, 4], [-1, 0, -1], [4, -6, 7]], [[-2, 1, 1], [5, 7, 9], [3, -3, 4]])',
-                 [[4, -5, 9], [31, 26, 64], [-1, 2, -5], [-17, -59, -22]]),
-                ('zmnozi([[1, 0, 2], [3, 5, 4], [-1, 0, -1]], [[-2, 1, 1, -4], [5, 7, 9, 4], [3, -3, 4, 5]])',
-                 [[4, -5, 9, 6], [31, 26, 64, 28], [-1, 2, -5, -1]]),
+                (["f = lambda x: x**2 - 3*x + 4",
+                  "g = lambda x: x**x",
+                  "l = uporabi_vse([math.sin, math.cos, f, g, abs, int], math.pi/2)"],
+                {'l': [1.0, 6.123233995736766e-17, 1.7550121198876498, 2.032658322210728, 1.5707963267948966, 1]}),
+                (["f = lambda x: x**2 - 3*x + 4",
+                  "g = lambda x: x**x",
+                  "l = uporabi_vse([math.sin, math.cos, f, g, abs, int], math.e)"],
+                {'l': [0.41078129050290885, -0.9117339147869651, 3.234210613553514, 15.154262241479259, 2.718281828459045, 2]}),
+                (["f = lambda x: x**2 + 3*x + 4",
+                  "g = lambda x: math.log(x**2 + 1)",
+                  "l = uporabi_vse([str, math.sin, math.tan, f, g, abs, round], math.pi/2)"],
+                {'l': ['1.5707963267948966', 1.0, 1.633123935319537e+16, 11.179790080657028, 1.2434053508887264, 1.5707963267948966, 2]}),
+                (["f = lambda x: x**2 + 3*x + 4",
+                  "g = lambda x: math.log(x**2 + 1)",
+                  "l = uporabi_vse([str, math.sin, math.tan, f, g, abs, round], -1)"],
+                {'l': ['-1', -0.8414709848078965, -1.5574077246549023, 2, 0.6931471805599453, 1, -1]}),
             ]
             for td in test_data:
-                if not Check.equal(*td):
+                if not Check.run(*td, clean=lambda l: [round(x, 9) if type(x) is float else x for x in l]):
                     break
-            Check.secret(zmnozi([[i**2 + 3*j for i in range(8)] for j in range(8)], [[i**2 + 3*j for i in range(8)] for j in range(8)]))
-            Check.secret(zmnozi([[i**2 + 3*j for i in range(10)] for j in range(8)], [[i**2 + 3*j for i in range(8)] for j in range(10)]))
         except:
             Check.error(
                 "Testi sprožijo izjemo\n  {0}",
