@@ -1,0 +1,8 @@
+živali
+  sesalci
+    slon
+  ptiči
+    sinička
+rastline
+  sobne rastline
+    difenbahija

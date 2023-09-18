@@ -1,6 +1,6 @@
 # =============================================================================
 # HTML datoteke
-#
+
 # Pri tej nalogi bodo vse datoteke kodirane v UTF-8. Pri odpiranju datotek
 # uporabite imenovani argument `encoding`, s katerim eksplicitno navedete
 # kodno tabelo, takole: `open(vhod, encoding='utf-8')`.
@@ -9,24 +9,40 @@
 # Sestavite funkcijo `html2txt(vhodna, izhodna)`, ki bo vsebino datoteke
 # z imenom `vhodna` prepisala v datoteko z imenom `izhodna`, pri tem pa
 # odstranila vse značke.
-#
+
 # Značke se začnejo z znakom `'<'` in končajo z znakom `'>'`.
 # Pozor: Začetek in konec značke nista nujno v isti vrstici.
-#
+
 # Na primer, če je v datoteki vreme.html zapisano:
-#
+
 #     <h1>Napoved vremena</h1>
 #     <p>Jutri bo <i><b>lepo</b></i> vreme.
 #     Več o vremenu preberite <a
 #     href="http://www.arso.gov.si/">tukaj</a>.</p>
-#
+
 # bo po klicu `html2txt('vreme.html', 'vreme.txt')` v datoteki vreme.txt
 # zapisano:
-#
+
 #     Napoved vremena
 #     Jutri bo lepo vreme.
 #     Več o vremenu preberite tukaj.
 # =============================================================================
+
+def html2txt(vhodna, izhodna):
+    znacka = False  # Stikalo, ki pove, če smo znotraj HTML značke.
+    with open(vhodna, encoding='utf-8') as html:
+        with open(izhodna, 'w', encoding='utf-8') as txt:
+            for vrstica in html:
+                txt_vrstica = ''
+                for znak in vrstica:
+                    if znak in '<>':
+                        znacka = not znacka
+                    elif not znacka:
+                        txt_vrstica += znak
+                # Opomba: Pri klicu funkcije print smo uporabili imenovani
+                # parameter end='', s čimer smo preprečili, da bi print na
+                # koncu izpisal znak '\n'.
+                print(txt_vrstica, file=txt, end='')
 
 # =====================================================================@005771=
 # 2. podnaloga
@@ -65,6 +81,19 @@
 # datoteki.
 # =============================================================================
 
+def tabela(vhodna, izhodna):
+    html_table = []
+    with open(vhodna, encoding='utf-8') as txt:
+        with open(izhodna, 'w', encoding='utf-8') as html:
+            print("<table>", file=html)
+            for line in txt:
+                html_table = line.strip().split(',')
+                print("  <tr>", file=html)
+                for element in html_table:
+                    print("    <td>" + element + "</td>", file=html)
+                print("  </tr>", file=html)
+            print("</table>", file=html, end='')
+
 # =====================================================================@005772=
 # 3. podnaloga
 # Sestavite funkcijo `seznami(ime_vhodne, ime_izhodne)`, ki bo podatke
@@ -94,6 +123,24 @@
 #       <li>obiskati sosedo.</li>
 #     </ul>
 # =============================================================================
+
+def seznami(vhodna, izhodna):
+    html_list = False
+    with open(vhodna, encoding='utf-8') as txt:
+        with open(izhodna, 'w', encoding='utf-8') as html:
+            for line in txt:
+                if line[0] == '*':
+                    if not html_list:
+                        html_list = True
+                        print("<ul>", file=html)
+                    print("  <li>" + line[1:].strip() + "</li>", file=html)
+                else:
+                    if html_list:
+                        html_list = False
+                        print("</ul>",  file=html)
+                    print(line, file=html, end='')
+            if html_list:
+                print("</ul>", file=html)
 
 # =====================================================================@005773=
 # 4. podnaloga
@@ -141,55 +188,27 @@
 # Opomba: Značk `<li>` ne zapirajte.
 # =============================================================================
 
-def html2txt(vhodna, izhodna):
-    znacka = False  # Stikalo, ki pove, če smo znotraj HTML značke.
-    with open(vhodna, encoding='utf-8') as html:
-        with open(izhodna, 'w', encoding='utf-8') as txt:
-            for vrstica in html:
-                txt_vrstica = ''
-                for znak in vrstica:
-                    if znak in '<>':
-                        znacka = not znacka
-                    elif not znacka:
-                        txt_vrstica += znak
-                # Opomba: Pri klicu funkcije print smo uporabili imenovani
-                # parameter end='', s čimer smo preprečili, da bi print na
-                # koncu izpisal znak '\n'.
-                print(txt_vrstica, file=txt, end='')
-
-def tabela(vhodna, izhodna):
-    html_table = []
-    with open(vhodna, encoding='utf-8') as txt:
-        with open(izhodna, 'w', encoding='utf-8') as html:
-            print("<table>", file=html)
-            for line in txt:
-                html_table = line.strip().split(',')
-                print("  <tr>", file=html)
-                for element in html_table:
-                    print("    <td>" + element + "</td>", file=html)
-                print("  </tr>", file=html)
-            print("</table>", file=html, end='')
-
-def seznami(vhodna, izhodna):
-    html_list = False
+def gnezdeni_seznami(vhodna, izhodna):
+    level = 0
+    indent = 2
     with open(vhodna, encoding='utf-8') as txt:
         with open(izhodna, 'w', encoding='utf-8') as html:
             for line in txt:
-                if line[0] == '*':
-                    if not html_list:
-                        html_list = True
-                        print("<ul>", file=html)
-                    print("  <li>" + line[1:].strip() + "</li>", file=html)
-                else:
-                    if html_list:
-                        html_list = False
-                        print("</ul>",  file=html)
-                    print(line, file=html, end='')
-            if html_list:
-                print("</ul>", file=html)
-
-
-
+                i = 0
+                while line[i] == ' ':
+                    i += 1
+                n = i // indent + 1
+                line = line.strip()
+                if n > level:
+                    print(2 * indent * level * ' ' + "<ul>", file=html)
+                    level += 1
+                while n < level:
+                    level -= 1
+                    print(2 * indent * level * ' ' + "</ul>", file=html)
+                print((2 * indent * level - indent) * ' ' + "<li>" + line, file=html)
+            while level > 0:
+                level -= 1
+                print(2 * indent * level * ' ' + "</ul>", file=html)
 
 
 
